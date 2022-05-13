@@ -13,9 +13,20 @@ const Login = (props) => {
   const [formIsValid, setFormIsValid] = useState(false);
 
   useEffect(() => {
-    setFormIsValid(
+    const identifier = setTimeout(() => {
+      console.log('checking form validity');
+      setFormIsValid(
       enteredEmail.includes('@') && enteredPassword.trim().length > 6
     );
+    }, 500);
+    //whenever this useEffect function runs, before it runs, except for the very first time when it runs, this cleanup function will run.
+    //So the cleanup function runs before every new side effect function execution and before the component is removed.
+    return () => {
+      console.log('Cleaned Up');
+      clearTimeout(identifier);
+    };
+    //If we want to be sending an HTTP request here, we would have now only sent once instead of a dozen HTTP requests. And that's an improvement.
+    
   }, [enteredEmail, enteredPassword]);
   //There is a simple rule as to what you put in the [], you add as dependencies, what you're using in your side effect function.
   //After every login component function execution, it will rerun this useEffect function but only if either setFormIsValid,
@@ -24,6 +35,9 @@ const Login = (props) => {
   //So that's another scenario where useEffect shines. It helps us make sure that we have one code, in one place, instead of as before in multiple places
   //which reruns, whenever one of the dependencies changed. So it's not just for when a component was created for the first time,but it's equally 
   //common to use it to rerun logic when certain data, typically some state or some props changed.
+
+  //useEffect in general, is a super important hook that helps you deal with code that should be executed in response to something. And something could 
+  //be the component being loaded. 
 
   const emailChangeHandler = (event) => {
     setEnteredEmail(event.target.value);
