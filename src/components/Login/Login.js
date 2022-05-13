@@ -1,42 +1,57 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useReducer } from 'react';
 
 import Card from '../UI/Card/Card';
 import classes from './Login.module.css';
 import Button from '../UI/Button/Button';
 
+//This function can be created outside of the scope of this component function because it does not need to interact with anything or handle any data.
+const emailReducer = (state, action) => {
+  if (action.type === 'USER_INPUT') {
+    return { value: action.val, isValid: action.val.includes('@') };
+  }
+  if (action.type === 'INPUT_BLUR') {
+    return { value: state.value, isValid: state.value.includes('@') };
+  }
+  return { value: '', isValid: false };
+};
+
 const Login = (props) => {
 
-  const [enteredEmail, setEnteredEmail] = useState('');
-  const [emailIsValid, setEmailIsValid] = useState();
   const [enteredPassword, setEnteredPassword] = useState('');
   const [passwordIsValid, setPasswordIsValid] = useState();
   const [formIsValid, setFormIsValid] = useState(false);
 
-  useEffect(() => {
-    console.log('Effect running');
-  }, []);
+  const [emailState, dispatchEmail] = useReducer(emailReducer, {
+    value: '',
+    isValid: null,
+  });
+
+  // useEffect(() => {
+  //   console.log('Effect running');
+  // }, []);
   //this effect function runs after every component render cycle.
   //once we add an empty array. Now this function here, only executes for the first time this component was mounted and 
   //rendered, but not thereafter, not for any subsequent rerender cycle.
   //Alternatively, we add a dependency like entered email or entered password. Now this function here, reruns whenever the component was re-evaluated
   //and this state, in this case here, changed.
 
-  useEffect(() => {
-    const identifier = setTimeout(() => {
-      console.log('checking form validity');
-      setFormIsValid(
-      enteredEmail.includes('@') && enteredPassword.trim().length > 6
-    );
-    }, 500);
-    //whenever this useEffect function runs, before it runs, except for the very first time when it runs, this cleanup function will run.
-    //So the cleanup function runs before every new side effect function execution and before the component is removed.
-    return () => {
-      console.log('Cleaned Up');
-      clearTimeout(identifier);
-    };
-    //If we want to be sending an HTTP request here, we would have now only sent once instead of a dozen HTTP requests. And that's an improvement.
+  // useEffect(() => {
+  //   const identifier = setTimeout(() => {
+  //     console.log('checking form validity');
+  //     setFormIsValid(
+  //     enteredEmail.includes('@') && enteredPassword.trim().length > 6
+  //   );
+  //   }, 500);
+  //   //whenever this useEffect function runs, before it runs, except for the very first time when it runs, this cleanup function will run.
+  //   //So the cleanup function runs before every new side effect function execution and before the component is removed.
+  //   return () => {
+  //     console.log('Cleaned Up');
+  //     clearTimeout(identifier);
+  //   };
+
+  //   //If we want to be sending an HTTP request here, we would have now only sent once instead of a dozen HTTP requests. And that's an improvement.
     
-  }, [enteredEmail, enteredPassword]);
+  // }, [enteredEmail, enteredPassword]);
   //There is a simple rule as to what you put in the [], you add as dependencies, what you're using in your side effect function.
   //After every login component function execution, it will rerun this useEffect function but only if either setFormIsValid,
   //or enteredEmail or enteredPassword,changed in the last component rerender cycle.
@@ -49,15 +64,23 @@ const Login = (props) => {
   //be the component being loaded. 
 
   const emailChangeHandler = (event) => {
-    setEnteredEmail(event.target.value);
+    dispatchEmail({type: 'USER_INPUT', val: event.target.value});
+
+    setFormIsValid(
+      event.target.value.includes('@') && enteredPassword.trim().length > 6
+    );
   };
 
   const passwordChangeHandler = (event) => {
     setEnteredPassword(event.target.value);
+
+    setFormIsValid(
+      emailState.isValid && event.target.value.trim().length > 6
+    );
   };
 
   const validateEmailHandler = () => {
-    setEmailIsValid(enteredEmail.includes('@'));
+    dispatchEmail({type: 'INPUT_BLUR'});
   };
 
   const validatePasswordHandler = () => {
@@ -66,7 +89,7 @@ const Login = (props) => {
 
   const submitHandler = (event) => {
     event.preventDefault();
-    props.onLogin(enteredEmail, enteredPassword);
+    props.onLogin(emailState.value, enteredPassword);
   };
 
   return (
@@ -74,14 +97,14 @@ const Login = (props) => {
       <form onSubmit={submitHandler}>
         <div
           className={`${classes.control} ${
-            emailIsValid === false ? classes.invalid : ''
+            emailState.isValid === false ? classes.invalid : ''
           }`}
         >
           <label htmlFor="email">E-Mail</label>
           <input
             type="email"
             id="email"
-            value={enteredEmail}
+            value={emailState.value}
             onChange={emailChangeHandler}
             onBlur={validateEmailHandler}
           />
