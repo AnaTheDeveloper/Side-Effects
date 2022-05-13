@@ -13,6 +13,15 @@ const Login = (props) => {
   const [formIsValid, setFormIsValid] = useState(false);
 
   useEffect(() => {
+    console.log('Effect running');
+  }, []);
+  //this effect function runs after every component render cycle.
+  //once we add an empty array. Now this function here, only executes for the first time this component was mounted and 
+  //rendered, but not thereafter, not for any subsequent rerender cycle.
+  //Alternatively, we add a dependency like entered email or entered password. Now this function here, reruns whenever the component was re-evaluated
+  //and this state, in this case here, changed.
+
+  useEffect(() => {
     const identifier = setTimeout(() => {
       console.log('checking form validity');
       setFormIsValid(
