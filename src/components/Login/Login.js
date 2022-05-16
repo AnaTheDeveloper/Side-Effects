@@ -15,13 +15,26 @@ const emailReducer = (state, action) => {
   return { value: '', isValid: false };
 };
 
+const passwordReducer = (state, action) => {
+  if (action.type === 'USER_INPUT') {
+    return { value: action.val, isValid: action.val.trim().length > 6 };
+  }
+  if (action.type === 'INPUT_BLUR') {
+    return { value: state.value, isValid: state.value.trim().length > 6 };
+  }
+  return { value: '', isValid: false };
+}
+
 const Login = (props) => {
 
-  const [enteredPassword, setEnteredPassword] = useState('');
-  const [passwordIsValid, setPasswordIsValid] = useState();
   const [formIsValid, setFormIsValid] = useState(false);
 
   const [emailState, dispatchEmail] = useReducer(emailReducer, {
+    value: '',
+    isValid: null,
+  });
+
+  const [passwordState, dispatchPassword] = useReducer(passwordReducer, {
     value: '',
     isValid: null,
   });
@@ -35,23 +48,28 @@ const Login = (props) => {
   //Alternatively, we add a dependency like entered email or entered password. Now this function here, reruns whenever the component was re-evaluated
   //and this state, in this case here, changed.
 
-  // useEffect(() => {
-  //   const identifier = setTimeout(() => {
-  //     console.log('checking form validity');
-  //     setFormIsValid(
-  //     enteredEmail.includes('@') && enteredPassword.trim().length > 6
-  //   );
-  //   }, 500);
-  //   //whenever this useEffect function runs, before it runs, except for the very first time when it runs, this cleanup function will run.
-  //   //So the cleanup function runs before every new side effect function execution and before the component is removed.
-  //   return () => {
-  //     console.log('Cleaned Up');
-  //     clearTimeout(identifier);
-  //   };
+  //Here we are using object destructuring to pull properties of objects. For exmaple, from emailState we can extract isValid and store it
+  //in a new constant of the same name.
+  const { isValid: emailIsValid } = emailState;
+  const { isValid: passwordIsValid } = passwordState;
 
-  //   //If we want to be sending an HTTP request here, we would have now only sent once instead of a dozen HTTP requests. And that's an improvement.
+  useEffect(() => {
+    const identifier = setTimeout(() => {
+      console.log('checking form validity');
+      setFormIsValid(
+      emailIsValid && passwordIsValid
+    );
+    }, 500);
+    //whenever this useEffect function runs, before it runs, except for the very first time when it runs, this cleanup function will run.
+    //So the cleanup function runs before every new side effect function execution and before the component is removed.
+    return () => {
+      console.log('Cleaned Up');
+      clearTimeout(identifier);
+    };
+
+    //If we want to be sending an HTTP request here, we would have now only sent once instead of a dozen HTTP requests. And that's an improvement.
     
-  // }, [enteredEmail, enteredPassword]);
+  }, [emailIsValid, passwordIsValid]);
   //There is a simple rule as to what you put in the [], you add as dependencies, what you're using in your side effect function.
   //After every login component function execution, it will rerun this useEffect function but only if either setFormIsValid,
   //or enteredEmail or enteredPassword,changed in the last component rerender cycle.
@@ -66,17 +84,17 @@ const Login = (props) => {
   const emailChangeHandler = (event) => {
     dispatchEmail({type: 'USER_INPUT', val: event.target.value});
 
-    setFormIsValid(
-      event.target.value.includes('@') && enteredPassword.trim().length > 6
-    );
+    // setFormIsValid(
+    //   event.target.value.includes('@') && passwordState.isValid
+    // );
   };
 
   const passwordChangeHandler = (event) => {
-    setEnteredPassword(event.target.value);
+    dispatchPassword({type: 'USER_INPUT', val: event.target.value})
 
-    setFormIsValid(
-      emailState.isValid && event.target.value.trim().length > 6
-    );
+    // setFormIsValid(
+    //   emailState.isValid && event.target.value.trim().length > 6
+    // );
   };
 
   const validateEmailHandler = () => {
@@ -84,12 +102,12 @@ const Login = (props) => {
   };
 
   const validatePasswordHandler = () => {
-    setPasswordIsValid(enteredPassword.trim().length > 6);
+    dispatchPassword({type: 'INPUT_BLUR'});
   };
 
   const submitHandler = (event) => {
     event.preventDefault();
-    props.onLogin(emailState.value, enteredPassword);
+    props.onLogin(emailState.value, passwordState.value);
   };
 
   return (
@@ -111,14 +129,14 @@ const Login = (props) => {
         </div>
         <div
           className={`${classes.control} ${
-            passwordIsValid === false ? classes.invalid : ''
+            passwordState.isValid === false ? classes.invalid : ''
           }`}
         >
           <label htmlFor="password">Password</label>
           <input
             type="password"
             id="password"
-            value={enteredPassword}
+            value={passwordState.value}
             onChange={passwordChangeHandler}
             onBlur={validatePasswordHandler}
           />
