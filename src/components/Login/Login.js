@@ -69,7 +69,7 @@ const Login = (props) => {
 
     //If we want to be sending an HTTP request here, we would have now only sent once instead of a dozen HTTP requests. And that's an improvement.
     
-  }, [emailIsValid, passwordIsValid]);
+  }, [emailIsValid, passwordIsValid]); // Now we are passing specific properties instead of the entire object as a dependency.
   //There is a simple rule as to what you put in the [], you add as dependencies, what you're using in your side effect function.
   //After every login component function execution, it will rerun this useEffect function but only if either setFormIsValid,
   //or enteredEmail or enteredPassword,changed in the last component rerender cycle.
