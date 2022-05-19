@@ -8,12 +8,13 @@ const AuthContext = React.createContext({
     //Giving it a dummy function for better IDE auto completion.
 });
 
-export const AuthContextProvider = () => {
+export const AuthContextProvider = (props) => {
 
     const [isLoggedIn, setIsLoggedIn] = useState(false);
 
     //After every component evaluation then this will run.
     useEffect(() => {
+
         const storedUserLoggedInInfo = localStorage.getItem('isLoggedIn');
 
     if (storedUserLoggedInInfo === '1') {
@@ -30,7 +31,7 @@ export const AuthContextProvider = () => {
 
     const loginHandler =() => {
         //Store data in local storeage in brower.
-    localStorage.setItem('isLoggedIn', '1')
+        localStorage.setItem('isLoggedIn', '1')
         setIsLoggedIn(true);
     };
 
@@ -42,10 +43,10 @@ export const AuthContextProvider = () => {
             onLogin: loginHandler
         }}
     >
-        {AuthContext.children}
+        {props.children}
     </AuthContext.Provider>
-    )
-}
+    );
+};
 
 export default AuthContext;
 
