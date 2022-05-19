@@ -1,8 +1,9 @@
-import React, { useState, useEffect, useReducer } from 'react';
+import React, { useState, useEffect, useReducer, useContext } from 'react';
 
 import Card from '../UI/Card/Card';
 import classes from './Login.module.css';
 import Button from '../UI/Button/Button';
+import AuthContext from '../../store/auth-context';
 
 //This function can be created outside of the scope of this component function because it does not need to interact with anything or handle any data.
 const emailReducer = (state, action) => {
@@ -38,6 +39,8 @@ const Login = (props) => {
     value: '',
     isValid: null,
   });
+
+  const authctx = useContext(AuthContext);
 
   // useEffect(() => {
   //   console.log('Effect running');
@@ -107,7 +110,7 @@ const Login = (props) => {
 
   const submitHandler = (event) => {
     event.preventDefault();
-    props.onLogin(emailState.value, passwordState.value);
+    authctx.onLogin(emailState.value, passwordState.value);
   };
 
   return (
