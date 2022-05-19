@@ -23,3 +23,6 @@ function App() {
 export default App;
 
 //Some developers prefer this more focused and separated approach where every component has one job essentially (rendering the TSK)and not a ton of jobs.
+
+//React COntext is great for app-wide or component-wide state, states that affects multiple components. It's not a replacement for component configuration.
+//It is not optimized for high frequency changes -  ie multiple state changes a second.
