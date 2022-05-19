@@ -26,3 +26,8 @@ export default App;
 
 //React COntext is great for app-wide or component-wide state, states that affects multiple components. It's not a replacement for component configuration.
 //It is not optimized for high frequency changes -  ie multiple state changes a second.
+
+//Rules of Hooks: https://reactjs.org/docs/hooks-rules.html
+//Only call hooks at top level.
+//Call hooks from React function components.
+
