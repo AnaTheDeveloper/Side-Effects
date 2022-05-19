@@ -38,7 +38,7 @@ export const AuthContextProvider = () => {
     <AuthContext.Provider 
         value={{
             isLoggedIn: isLoggedIn, 
-            onLogout: loginHandler, 
+            onLogout: logoutHandler, 
             onLogin: loginHandler
         }}
     >
